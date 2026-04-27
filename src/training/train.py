@@ -78,10 +78,11 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    dataset_path = "/content/drive/MyDrive/gan-sketch-colorization/data/raw/edges2shoes/train"
+    dataset_path = "/content/edges2shoes/train"
 
     dataset = Edges2ShoesDataset(dataset_path)
-    train_loader = DataLoader(dataset, batch_size=8, shuffle=True)
+    train_loader = DataLoader(dataset, batch_size=8,
+                              shuffle=True, num_workers=2, pin_memory=True)
 
     generator = UNetGenerator().to(device)
     discriminator = PatchGANDiscriminator().to(device)
