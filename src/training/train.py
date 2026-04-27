@@ -5,6 +5,11 @@ from src.models.generator import UNetGenerator
 from src.models.discriminator import PatchGANDiscriminator
 from src.losses.gan_loss import adversarial_loss, pixel_loss
 
+import os
+import torchvision.utils as vutils
+
+save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"
+
 
 def train_one_epoch(
     generator,
@@ -77,6 +82,8 @@ def main():
     from src.datasets.dataset_loader import Edges2ShoesDataset
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    os.makedirs(f"{save_dir}/generated_images", exist_ok=True)
+    os.makedirs(f"{save_dir}/checkpoints", exist_ok=True)
 
     dataset_path = "/content/edges2shoes/train"
 
@@ -98,7 +105,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    num_epochs = 1
+    num_epochs = 10
 
     for epoch in range(num_epochs):
         G_loss, D_loss = train_one_epoch(
@@ -109,7 +116,27 @@ def main():
             optimizer_D,
             device
         )
+        sample_input, _ = next(iter(train_loader))
+        sample_input = sample_input.to(device)
 
+        generator.eval()
+
+        with torch.no_grad():
+            generated = generator(sample_input)
+
+        generator.train()
+
+        vutils.save_image(
+            generated,
+            f"{save_dir}/generated_images/epoch_{epoch+1}.png",
+            normalize=True
+        )
+
+        torch.save(generator.state_dict(),
+                   f"{save_dir}/checkpoints/generator_epoch_{epoch+1}.pth")
+
+        torch.save(discriminator.state_dict(),
+                   f"{save_dir}/checkpoints/discriminator_epoch_{epoch+1}.pth")
         print(
             f"Epoch [{epoch+1}/{num_epochs}] | G Loss: {G_loss:.4f} | D Loss: {D_loss:.4f}")
 
