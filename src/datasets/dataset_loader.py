@@ -7,7 +7,10 @@ import torchvision.transforms as transforms
 class Edges2ShoesDataset(Dataset):
     def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
-        self.image_files = sorted(os.listdir(root_dir))
+        self.image_files = sorted([
+            f for f in os.listdir(root_dir)
+            if f.lower().endswith((".jpg", ".jpeg", ".png"))
+        ])
 
         if transform is None:
             self.transform = transforms.Compose([
