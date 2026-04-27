@@ -72,7 +72,7 @@ def train_one_epoch(
 
 def main():
     import torch.optim as optim
-    from torch.utils.data import DataLoader
+    from torch.utils.data import DataLoader, Subset
 
     from src.datasets.dataset_loader import Edges2ShoesDataset
 
@@ -81,9 +81,15 @@ def main():
     dataset_path = "/content/edges2shoes/train"
 
     dataset = Edges2ShoesDataset(dataset_path)
-    train_loader = DataLoader(dataset, batch_size=8,
-                              shuffle=True, num_workers=2, pin_memory=True)
+    dataset = Subset(dataset, range(500))
 
+    train_loader = DataLoader(
+        dataset,
+        batch_size=16,
+        shuffle=True,
+        num_workers=2,
+        pin_memory=True
+    )
     generator = UNetGenerator().to(device)
     discriminator = PatchGANDiscriminator().to(device)
 
@@ -92,7 +98,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    num_epochs = 5
+    num_epochs = 1
 
     for epoch in range(num_epochs):
         G_loss, D_loss = train_one_epoch(
