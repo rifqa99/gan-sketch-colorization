@@ -16,6 +16,9 @@ class Edges2ShoesDataset(Dataset):
             self.transform = transforms.Compose([
                 transforms.Resize((256, 512)),
                 transforms.ToTensor(),
+                # Normalize to [-1, 1] because the generator uses Tanh activation
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+
             ])
         else:
             self.transform = transform
