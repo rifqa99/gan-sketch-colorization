@@ -68,3 +68,44 @@ def train_one_epoch(
     avg_D_loss = total_D_loss / len(train_loader)
 
     return avg_G_loss, avg_D_loss
+
+
+def main():
+    import torch.optim as optim
+    from torch.utils.data import DataLoader
+
+    from src.datasets.dataset_loader import Edges2ShoesDataset
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    dataset_path = "/content/drive/MyDrive/gan-sketch-colorization/data/raw/edges2shoes/train"
+
+    dataset = Edges2ShoesDataset(dataset_path)
+    train_loader = DataLoader(dataset, batch_size=8, shuffle=True)
+
+    generator = UNetGenerator().to(device)
+    discriminator = PatchGANDiscriminator().to(device)
+
+    optimizer_G = optim.Adam(generator.parameters(),
+                             lr=0.0002, betas=(0.5, 0.999))
+    optimizer_D = optim.Adam(discriminator.parameters(),
+                             lr=0.0002, betas=(0.5, 0.999))
+
+    num_epochs = 5
+
+    for epoch in range(num_epochs):
+        G_loss, D_loss = train_one_epoch(
+            generator,
+            discriminator,
+            train_loader,
+            optimizer_G,
+            optimizer_D,
+            device
+        )
+
+        print(
+            f"Epoch [{epoch+1}/{num_epochs}] | G Loss: {G_loss:.4f} | D Loss: {D_loss:.4f}")
+
+
+if __name__ == "__main__":
+    main()
