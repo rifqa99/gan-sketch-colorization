@@ -88,7 +88,7 @@ def main():
     dataset_path = "/content/edges2shoes/train"
 
     dataset = Edges2ShoesDataset(dataset_path)
-    dataset = Subset(dataset, range(500))
+    dataset = Subset(dataset, range(5000))
 
     train_loader = DataLoader(
         dataset,
@@ -105,7 +105,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    num_epochs = 10
+    num_epochs = 20
 
     for epoch in range(num_epochs):
         G_loss, D_loss = train_one_epoch(
