@@ -1,7 +1,8 @@
 import torch
 from tqdm import tqdm
 
-from src.models.generator import UNetGenerator
+# from src.models.generator import UNetGenerator
+from src.models.convnext_generator import ConvNeXtV2Generator
 from src.models.discriminator import PatchGANDiscriminator
 from src.losses.gan_loss import adversarial_loss, pixel_loss
 
@@ -10,7 +11,9 @@ import torchvision.utils as vutils
 
 import json
 
-save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"
+save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"  # Baseline
+save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"  # ConvNextV2
+
 
 history = {
     "epoch": [],
@@ -105,7 +108,8 @@ def main():
         num_workers=2,
         pin_memory=True
     )
-    generator = UNetGenerator().to(device)
+    # generator = UNetGenerator().to(device)
+    generator = ConvNeXtV2Generator().to(device)
     discriminator = PatchGANDiscriminator().to(device)
 
     optimizer_G = optim.Adam(generator.parameters(),
@@ -113,7 +117,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    num_epochs = 20
+    num_epochs = 1
 
     for epoch in range(num_epochs):
         G_loss, D_loss = train_one_epoch(
