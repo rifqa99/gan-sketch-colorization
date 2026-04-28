@@ -11,7 +11,7 @@ import torchvision.utils as vutils
 
 import json
 
-save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"  # Baseline
+# save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"  # Baseline
 save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"  # ConvNextV2
 
 
@@ -87,12 +87,12 @@ def train_one_epoch(
         total_G_L1_loss += G_L1_loss.item()
         total_D_loss += D_loss.item()
 
-        avg_G_loss = total_G_loss / len(train_loader)
-        avg_G_adv_loss = total_G_adv_loss / len(train_loader)
-        avg_G_L1_loss = total_G_L1_loss / len(train_loader)
-        avg_D_loss = total_D_loss / len(train_loader)
+    avg_G_loss = total_G_loss / len(train_loader)
+    avg_G_adv_loss = total_G_adv_loss / len(train_loader)
+    avg_G_L1_loss = total_G_L1_loss / len(train_loader)
+    avg_D_loss = total_D_loss / len(train_loader)
 
-        return avg_G_loss, avg_G_adv_loss, avg_G_L1_loss, avg_D_loss
+    return avg_G_loss, avg_G_adv_loss, avg_G_L1_loss, avg_D_loss
 
 
 def main():
@@ -126,7 +126,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    num_epochs = 1
+    num_epochs = 20
 
     for epoch in range(num_epochs):
         G_loss, G_adv_loss, G_L1_loss, D_loss = train_one_epoch(
