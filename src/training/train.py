@@ -8,7 +8,15 @@ from src.losses.gan_loss import adversarial_loss, pixel_loss
 import os
 import torchvision.utils as vutils
 
+import json
+
 save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"
+
+history = {
+    "epoch": [],
+    "G_loss": [],
+    "D_loss": [],
+}
 
 
 def train_one_epoch(
@@ -88,7 +96,7 @@ def main():
     dataset_path = "/content/edges2shoes/train"
 
     dataset = Edges2ShoesDataset(dataset_path)
-    dataset = Subset(dataset, range(5000))
+    # dataset = Subset(dataset, range(5000))
 
     train_loader = DataLoader(
         dataset,
@@ -128,15 +136,20 @@ def main():
 
         vutils.save_image(
             generated,
-            f"{save_dir}/generated_images/epoch_{epoch+1}.png",
+            f"{save_dir}/generated_images/full_epoch_{epoch+1}.png",
             normalize=True
         )
+        history["epoch"].append(epoch + 1)
+        history["G_loss"].append(G_loss)
+        history["D_loss"].append(D_loss)
 
+        with open(f"{save_dir}/training_history.json", "w") as f:
+            json.dump(history, f, indent=4)
         torch.save(generator.state_dict(),
-                   f"{save_dir}/checkpoints/generator_epoch_{epoch+1}.pth")
+                   f"{save_dir}/checkpoints/generator_Full_epoch_{epoch+1}.pth")
 
         torch.save(discriminator.state_dict(),
-                   f"{save_dir}/checkpoints/discriminator_epoch_{epoch+1}.pth")
+                   f"{save_dir}/checkpoints/discriminator_Full_epoch_{epoch+1}.pth")
         print(
             f"Epoch [{epoch+1}/{num_epochs}] | G Loss: {G_loss:.4f} | D Loss: {D_loss:.4f}")
 
