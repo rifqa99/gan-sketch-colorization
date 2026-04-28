@@ -18,6 +18,8 @@ save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"  
 history = {
     "epoch": [],
     "G_loss": [],
+    "G_adv_loss": [],
+    "G_L1_loss": [],
     "D_loss": [],
 }
 
@@ -35,6 +37,8 @@ def train_one_epoch(
     discriminator.train()
 
     total_G_loss = 0
+    total_G_adv_loss = 0
+    total_G_L1_loss = 0
     total_D_loss = 0
 
     for input_img, target_img in tqdm(train_loader):
@@ -69,21 +73,26 @@ def train_one_epoch(
         fake_pred = discriminator(input_img, fake_img)
 
         G_adv_loss = adversarial_loss(fake_pred, valid)
-        G_L1_loss = pixel_loss(fake_img, target_img)
+        G_L1_raw = pixel_loss(fake_img, target_img)
+        G_L1_loss = lambda_L1 * G_L1_raw
 
-        G_loss = G_adv_loss + lambda_L1 * G_L1_loss
+        G_loss = G_adv_loss + G_L1_loss
 
         optimizer_G.zero_grad()
         G_loss.backward()
         optimizer_G.step()
 
         total_G_loss += G_loss.item()
+        total_G_adv_loss += G_adv_loss.item()
+        total_G_L1_loss += G_L1_loss.item()
         total_D_loss += D_loss.item()
 
-    avg_G_loss = total_G_loss / len(train_loader)
-    avg_D_loss = total_D_loss / len(train_loader)
+        avg_G_loss = total_G_loss / len(train_loader)
+        avg_G_adv_loss = total_G_adv_loss / len(train_loader)
+        avg_G_L1_loss = total_G_L1_loss / len(train_loader)
+        avg_D_loss = total_D_loss / len(train_loader)
 
-    return avg_G_loss, avg_D_loss
+        return avg_G_loss, avg_G_adv_loss, avg_G_L1_loss, avg_D_loss
 
 
 def main():
@@ -120,7 +129,7 @@ def main():
     num_epochs = 1
 
     for epoch in range(num_epochs):
-        G_loss, D_loss = train_one_epoch(
+        G_loss, G_adv_loss, G_L1_loss, D_loss = train_one_epoch(
             generator,
             discriminator,
             train_loader,
@@ -145,6 +154,8 @@ def main():
         )
         history["epoch"].append(epoch + 1)
         history["G_loss"].append(G_loss)
+        history["G_adv_loss"].append(G_adv_loss)
+        history["G_L1_loss"].append(G_L1_loss)
         history["D_loss"].append(D_loss)
 
         with open(f"{save_dir}/training_history.json", "w") as f:
@@ -155,7 +166,12 @@ def main():
         torch.save(discriminator.state_dict(),
                    f"{save_dir}/checkpoints/discriminator_Full_epoch_{epoch+1}.pth")
         print(
-            f"Epoch [{epoch+1}/{num_epochs}] | G Loss: {G_loss:.4f} | D Loss: {D_loss:.4f}")
+            f"Epoch [{epoch+1}/{num_epochs}] | "
+            f"G Loss: {G_loss:.4f} | "
+            f"G Adv: {G_adv_loss:.4f} | "
+            f"G L1: {G_L1_loss:.4f} | "
+            f"D Loss: {D_loss:.4f}"
+        )
 
 
 if __name__ == "__main__":
