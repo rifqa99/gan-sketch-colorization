@@ -126,9 +126,25 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    num_epochs = 20
+    start_epoch = 8
 
-    for epoch in range(num_epochs):
+    generator.load_state_dict(torch.load(
+        f"{save_dir}/checkpoints/generator_Full_epoch_{start_epoch}.pth",
+        map_location=device
+    ))
+
+    discriminator.load_state_dict(torch.load(
+        f"{save_dir}/checkpoints/discriminator_Full_epoch_{start_epoch}.pth",
+        map_location=device
+    ))
+
+    history_path = f"{save_dir}/training_history.json"
+
+    if os.path.exists(history_path):
+        with open(history_path, "r") as f:
+            history = json.load(f)
+    num_epochs = 20
+    for epoch in range(start_epoch, num_epochs):
         G_loss, G_adv_loss, G_L1_loss, D_loss = train_one_epoch(
             generator,
             discriminator,
@@ -165,6 +181,14 @@ def main():
 
         torch.save(discriminator.state_dict(),
                    f"{save_dir}/checkpoints/discriminator_Full_epoch_{epoch+1}.pth")
+        torch.save({
+            "epoch": epoch + 1,
+            "generator_state_dict": generator.state_dict(),
+            "discriminator_state_dict": discriminator.state_dict(),
+            "optimizer_G_state_dict": optimizer_G.state_dict(),
+            "optimizer_D_state_dict": optimizer_D.state_dict(),
+            "history": history,
+        }, f"{save_dir}/checkpoints/full_checkpoint_epoch_{epoch+1}.pth")
         print(
             f"Epoch [{epoch+1}/{num_epochs}] | "
             f"G Loss: {G_loss:.4f} | "
