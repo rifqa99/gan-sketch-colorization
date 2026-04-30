@@ -126,8 +126,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    start_epoch = 8
-
+    start_epoch = 15
     generator.load_state_dict(torch.load(
         f"{save_dir}/checkpoints/generator_Full_epoch_{start_epoch}.pth",
         map_location=device
