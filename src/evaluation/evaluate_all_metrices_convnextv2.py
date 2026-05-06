@@ -10,7 +10,11 @@ from torchvision.utils import save_image
 from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 from src.datasets.dataset_loader import Edges2ShoesDataset
-from src.models.generator import UNetGenerator
+
+# IMPORTANT:
+# Use the SAME generator class that you used during ConvNeXt V2 training.
+# Change this import if your file/class name is different.
+from src.models.convnextv2_generator import ConvNeXtV2Generator
 
 
 def compute_fid(real_dir, generated_dir):
@@ -42,8 +46,11 @@ def evaluate_epoch(epoch, device, loader, ssim_metric, lpips_metric, save_dir):
     os.makedirs(generated_dir, exist_ok=True)
     os.makedirs(real_dir, exist_ok=True)
 
-    generator = UNetGenerator().to(device)
-    generator.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    generator = ConvNeXtV2Generator().to(device)
+
+    state_dict = torch.load(checkpoint_path, map_location=device)
+    generator.load_state_dict(state_dict)
+
     generator.eval()
 
     total_ssim = 0.0
@@ -58,11 +65,9 @@ def evaluate_epoch(epoch, device, loader, ssim_metric, lpips_metric, save_dir):
 
             fake_img = generator(input_img)
 
-            # SSIM: higher is better
             ssim_score = ssim_metric(fake_img, target_img)
             total_ssim += ssim_score.item()
 
-            # LPIPS: lower is better
             lpips_score = lpips_metric(fake_img, target_img)
             total_lpips += lpips_score.mean().item()
 
@@ -72,7 +77,6 @@ def evaluate_epoch(epoch, device, loader, ssim_metric, lpips_metric, save_dir):
     avg_ssim = total_ssim / len(loader)
     avg_lpips = total_lpips / len(loader)
 
-    # FID: lower is better
     fid_score = compute_fid(real_dir, generated_dir)
 
     return avg_ssim, fid_score, avg_lpips
@@ -96,7 +100,6 @@ def main():
 
     ssim_metric = StructuralSimilarityIndexMeasure(data_range=2.0).to(device)
 
-    # LPIPS expects images in range [-1, 1], same as your GAN output/target
     lpips_metric = lpips.LPIPS(net="alex").to(device)
     lpips_metric.eval()
 
