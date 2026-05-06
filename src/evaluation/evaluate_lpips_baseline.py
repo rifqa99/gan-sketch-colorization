@@ -40,7 +40,7 @@ def main():
     print("Using device:", device)
 
     dataset_path = "data/edges2shoes/val"
-    checkpoint_dir = "baseline/outputs/checkpoints"
+    checkpoint_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs/checkpoints"
     save_dir = "baseline/evaluation_lpips"
 
     os.makedirs(save_dir, exist_ok=True)
