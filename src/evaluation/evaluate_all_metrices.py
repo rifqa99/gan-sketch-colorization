@@ -7,7 +7,7 @@ import lpips
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from torchvision.utils import save_image
-from torchmetrics.imsage import StructuralSimilarityIndexMeasure
+from torchmetrics.image import StructuralSimilarityIndexMeasure
 
 from src.datasets.dataset_loader import Edges2ShoesDataset
 from src.models.generator import UNetGenerator
