@@ -14,7 +14,7 @@ from src.datasets.dataset_loader import Edges2ShoesDataset
 # IMPORTANT:
 # Use the SAME generator class that you used during ConvNeXt V2 training.
 # Change this import if your file/class name is different.
-from src.models.convnextv2_generator import ConvNeXtV2Generator
+from src.models.convnext_generator import ConvNeXtV2Generator
 
 
 def compute_fid(real_dir, generated_dir):
