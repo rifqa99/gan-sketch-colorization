@@ -116,7 +116,7 @@ def main():
         dataset,
         batch_size=16,
         shuffle=True,
-        num_workers=2,
+        num_workers=4,
         pin_memory=True
     )
     # generator = UNetGenerator().to(device)
