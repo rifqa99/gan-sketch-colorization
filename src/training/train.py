@@ -145,11 +145,6 @@ def main():
             print(
                 f"No checkpoint found at {checkpoint_path}, starting from scratch.")
 
-    discriminator.load_state_dict(torch.load(
-        f"{save_dir}/checkpoints/discriminator_Full_epoch_{start_epoch}.pth",
-        map_location=device
-    ))
-
     history_path = f"{save_dir}/training_history.json"
 
     if os.path.exists(history_path):
