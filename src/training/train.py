@@ -12,7 +12,9 @@ import torchvision.utils as vutils
 import json
 
 # save_dir = "/content/drive/MyDrive/gan-sketch-colorization/baseline/outputs"  # Baseline
-save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"  # ConvNextV2
+# save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"  # ConvNextV2
+# L2 reduced block and bottleneck
+save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2_l2_reduced/outputs"
 
 
 history = {
@@ -126,7 +128,7 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    start_epoch = 19
+    start_epoch = 0
     generator.load_state_dict(torch.load(
         f"{save_dir}/checkpoints/generator_Full_epoch_{start_epoch}.pth",
         map_location=device
@@ -142,7 +144,7 @@ def main():
     if os.path.exists(history_path):
         with open(history_path, "r") as f:
             history = json.load(f)
-    num_epochs = 20
+    num_epochs = 30
     for epoch in range(start_epoch, num_epochs):
         G_loss, G_adv_loss, G_L1_loss, D_loss = train_one_epoch(
             generator,
