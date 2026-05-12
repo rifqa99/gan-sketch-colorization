@@ -128,6 +128,14 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
+    history = {
+        "epoch": [],
+        "G_loss": [],
+        "G_adv": [],
+        "G_pixel": [],
+        "D_loss": []
+    }
+
     start_epoch = 1
     resume_training = False
     if resume_training:
