@@ -119,9 +119,9 @@ def main():
         "D_loss": []
     }
 
-    start_epoch = 1
+    start_epoch = 15
     num_epochs = 30
-    resume_training = False
+    resume_training = True
 
     if resume_training:
         checkpoint_path = f"{save_dir}/checkpoints/full_checkpoint_epoch_{start_epoch}.pth"
