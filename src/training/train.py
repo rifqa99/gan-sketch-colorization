@@ -128,11 +128,22 @@ def main():
     optimizer_D = optim.Adam(discriminator.parameters(),
                              lr=0.0002, betas=(0.5, 0.999))
 
-    start_epoch = 0
-    generator.load_state_dict(torch.load(
-        f"{save_dir}/checkpoints/generator_Full_epoch_{start_epoch}.pth",
-        map_location=device
-    ))
+    start_epoch = 1
+    resume_training = False
+    if resume_training:
+        checkpoint_path = f"{save_dir}/checkpoints/full_checkpoint_epoch_{start_epoch}.pth"
+        if os.path.exists(checkpoint_path):
+            checkpoint = torch.load(checkpoint_path, map_location=device)
+            start_epoch = checkpoint["epoch"]
+            generator.load_state_dict(checkpoint["generator_state_dict"])
+            discriminator.load_state_dict(
+                checkpoint["discriminator_state_dict"])
+            optimizer_G.load_state_dict(checkpoint["optimizer_G_state_dict"])
+            optimizer_D.load_state_dict(checkpoint["optimizer_D_state_dict"])
+            history = checkpoint.get("history", history)
+        else:
+            print(
+                f"No checkpoint found at {checkpoint_path}, starting from scratch.")
 
     discriminator.load_state_dict(torch.load(
         f"{save_dir}/checkpoints/discriminator_Full_epoch_{start_epoch}.pth",
