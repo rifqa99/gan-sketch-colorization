@@ -105,22 +105,20 @@ class ConvNeXtV2Generator(nn.Module):
             ConvNeXtV2Block(c),
         )
 
-        self.down1 = DownBlock(c, c * 2)
-        self.down2 = DownBlock(c * 2, c * 4)
-        self.down3 = DownBlock(c * 4, c * 8)
-        self.down4 = DownBlock(c * 8, c * 8)
+        self.down1 = DownBlock(c, c * 2, num_blocks=1)
+        self.down2 = DownBlock(c * 2, c * 4, num_blocks=1)
+        self.down3 = DownBlock(c * 4, c * 8, num_blocks=1)
+        self.down4 = DownBlock(c * 8, c * 8, num_blocks=1)
 
         self.bottleneck = nn.Sequential(
             ConvNeXtV2Block(c * 8),
             ConvNeXtV2Block(c * 8),
-            ConvNeXtV2Block(c * 8),
-            ConvNeXtV2Block(c * 8),
         )
 
-        self.up1 = UpBlock(c * 8, c * 8, c * 8)
-        self.up2 = UpBlock(c * 8, c * 4, c * 4)
-        self.up3 = UpBlock(c * 4, c * 2, c * 2)
-        self.up4 = UpBlock(c * 2, c, c)
+        self.up1 = UpBlock(c * 8, c * 8, c * 8, num_blocks=1)
+        self.up2 = UpBlock(c * 8, c * 4, c * 4, num_blocks=1)
+        self.up3 = UpBlock(c * 4, c * 2, c * 2, num_blocks=1)
+        self.up4 = UpBlock(c * 2, c, c, num_blocks=1)
 
         self.out = nn.Sequential(
             nn.Conv2d(c, out_channels, kernel_size=7, stride=1, padding=3),
