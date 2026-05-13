@@ -96,7 +96,7 @@ def main():
 
     train_loader = DataLoader(
         dataset,
-        batch_size=32,
+        batch_size=24,
         shuffle=True,
         num_workers=4,
         pin_memory=True,
