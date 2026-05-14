@@ -119,9 +119,9 @@ def main():
         "D_loss": []
     }
 
-    start_epoch = 1
+    start_epoch = 20
     num_epochs = 50
-    resume_training = False
+    resume_training = True
 
     print(
         f"Training ConvNextV2 Generator with L1 Loss from epoch {start_epoch} to {num_epochs}")
