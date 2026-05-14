@@ -119,7 +119,7 @@ def main():
         "D_loss": []
     }
 
-    start_epoch = 30
+    start_epoch = 20
     num_epochs = 50
     resume_training = True
 
