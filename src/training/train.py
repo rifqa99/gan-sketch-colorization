@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 
 from src.models.convnext_generator import ConvNeXtV2Generator
 from src.models.discriminator import PatchGANDiscriminator
-from src.losses.gan_loss import adversarial_loss, pixel_loss
+from src.losses.gan_loss import adversarial_loss, pixel_loss_l1
 from src.datasets.dataset_loader import Edges2ShoesDataset
 
 
@@ -61,7 +61,7 @@ def train_one_epoch(
 
         G_adv_loss = adversarial_loss(fake_pred, valid)
 
-        G_L2_raw = pixel_loss(fake_img, target_img)
+        G_L2_raw = pixel_loss_l1(fake_img, target_img)
         G_L2_loss = lambda_L2 * G_L2_raw
 
         G_loss = G_adv_loss + G_L2_loss
