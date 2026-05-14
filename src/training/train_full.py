@@ -9,11 +9,11 @@ from torch.utils.data import DataLoader
 
 from src.models.convnext_generator import ConvNeXtV2Generator
 from src.models.discriminator import PatchGANDiscriminator
-from src.losses.gan_loss import adversarial_loss, pixel_loss
+from src.losses.gan_loss import adversarial_loss, pixel_loss_l1
 from src.datasets.dataset_loader import Edges2ShoesDataset
 
 
-save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2_l2/outputs"
+save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"
 
 
 def train_one_epoch(
@@ -23,14 +23,14 @@ def train_one_epoch(
     optimizer_G,
     optimizer_D,
     device,
-    lambda_L2=100
+    lambda_L1=100
 ):
     generator.train()
     discriminator.train()
 
     total_G_loss = 0
     total_G_adv_loss = 0
-    total_G_L2_loss = 0
+    total_G_L1_loss = 0
     total_D_loss = 0
 
     for input_img, target_img in tqdm(train_loader):
@@ -61,10 +61,10 @@ def train_one_epoch(
 
         G_adv_loss = adversarial_loss(fake_pred, valid)
 
-        G_L2_raw = pixel_loss(fake_img, target_img)
-        G_L2_loss = lambda_L2 * G_L2_raw
+        G_L1_raw = pixel_loss_l1(fake_img, target_img)
+        G_L1_loss = lambda_L1 * G_L1_raw
 
-        G_loss = G_adv_loss + G_L2_loss
+        G_loss = G_adv_loss + G_L1_loss
 
         optimizer_G.zero_grad()
         G_loss.backward()
@@ -72,13 +72,13 @@ def train_one_epoch(
 
         total_G_loss += G_loss.item()
         total_G_adv_loss += G_adv_loss.item()
-        total_G_L2_loss += G_L2_loss.item()
+        total_G_L1_loss += G_L1_loss.item()
         total_D_loss += D_loss.item()
 
     return (
         total_G_loss / len(train_loader),
         total_G_adv_loss / len(train_loader),
-        total_G_L2_loss / len(train_loader),
+        total_G_L1_loss / len(train_loader),
         total_D_loss / len(train_loader),
     )
 
@@ -115,7 +115,7 @@ def main():
         "epoch": [],
         "G_loss": [],
         "G_adv_loss": [],
-        "G_L2_loss": [],
+        "G_L1_loss": [],
         "D_loss": []
     }
 
@@ -124,7 +124,7 @@ def main():
     resume_training = False
 
     print(
-        f"Training ConvNextV2 Generator with L2 Loss from epoch {start_epoch} to {num_epochs}")
+        f"Training ConvNextV2 Generator with L1 Loss from epoch {start_epoch} to {num_epochs}")
 
     if resume_training:
         checkpoint_path = f"{save_dir}/checkpoints/full_checkpoint_epoch_{start_epoch}.pth"
@@ -147,7 +147,7 @@ def main():
                 f"No checkpoint found at {checkpoint_path}, starting from scratch.")
 
     for epoch in range(start_epoch, num_epochs + 1):
-        G_loss, G_adv_loss, G_L2_loss, D_loss = train_one_epoch(
+        G_loss, G_adv_loss, G_L1_loss, D_loss = train_one_epoch(
             generator,
             discriminator,
             train_loader,
@@ -173,7 +173,7 @@ def main():
         history["epoch"].append(epoch)
         history["G_loss"].append(G_loss)
         history["G_adv_loss"].append(G_adv_loss)
-        history["G_L2_loss"].append(G_L2_loss)
+        history["G_L1_loss"].append(G_L1_loss)
         history["D_loss"].append(D_loss)
 
         with open(f"{save_dir}/training_history.json", "w") as f:
@@ -202,7 +202,7 @@ def main():
             f"Epoch [{epoch}/{num_epochs}] | "
             f"G Loss: {G_loss:.4f} | "
             f"G Adv: {G_adv_loss:.4f} | "
-            f"G L2: {G_L2_loss:.4f} | "
+            f"G L1: {G_L1_loss:.4f} | "
             f"D Loss: {D_loss:.4f}"
         )
 

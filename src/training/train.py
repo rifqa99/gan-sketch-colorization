@@ -13,7 +13,7 @@ from src.losses.gan_loss import adversarial_loss, pixel_loss_l1
 from src.datasets.dataset_loader import Edges2ShoesDataset
 
 
-save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2_l2_reduced/outputs"
+save_dir = "/content/drive/MyDrive/gan-sketch-colorization/convnextv2/outputs"
 
 
 def train_one_epoch(
